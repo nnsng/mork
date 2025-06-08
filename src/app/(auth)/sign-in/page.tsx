@@ -1,4 +1,10 @@
-import { SignInForm } from '@/components/auth/signin-form';
+import { SignInForm } from '@/app/(auth)/sign-in/sign-in-form';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Sign in | Mork',
+  description: 'Sign in to your account to start managing your bookmarks',
+};
 
 export default function SignInPage() {
   return (

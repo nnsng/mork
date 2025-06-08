@@ -11,45 +11,48 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { Bookmark } from '@/types/bookmark';
 import { exportBookmarks, importBookmarks } from '@/utils/bookmark';
 import { Download } from 'lucide-react';
 import type React from 'react';
 import { toast } from 'sonner';
+import { useServerAction } from 'zsa-react';
+import { importBookmarksAction } from '../../app/(main)/(dashboard)/actions';
 
 type ImportExportModalProps = {
+  bookmarks: Bookmark[];
   isOpen: boolean;
   onClose: () => void;
 };
 
-export function ImportExportModal({ isOpen, onClose }: ImportExportModalProps) {
+export function ImportExportModal({ bookmarks, isOpen, onClose }: ImportExportModalProps) {
+  const { execute, isPending } = useServerAction(importBookmarksAction, {
+    onSuccess: ({ data }) => {
+      toast.success(
+        `Successfully imported ${data.length} ${data.length === 1 ? 'bookmark' : 'bookmarks'}`,
+      );
+      onClose();
+    },
+    onError: ({ err }) => {
+      toast.error(err.message);
+    },
+  });
+
   const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
       const bookmarks = await importBookmarks(file);
-      const existingBookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
-      const allBookmarks = [...existingBookmarks, ...bookmarks];
-
-      localStorage.setItem('bookmarks', JSON.stringify(allBookmarks));
-
-      toast.success(`Successfully imported ${bookmarks.length} bookmarks`, {
-        richColors: true,
-      });
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
+      execute(bookmarks);
     } catch {
-      toast.error("Failed to import bookmarks. Please ensure it's a valid HTML export.", {
-        richColors: true,
-      });
+      toast.error("Failed to import bookmarks. Please ensure it's a valid HTML export.");
     }
   };
 
   const handleExport = () => {
-    const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
     exportBookmarks(bookmarks);
+    onClose();
   };
 
   return (
@@ -76,6 +79,7 @@ export function ImportExportModal({ isOpen, onClose }: ImportExportModalProps) {
                 type="file"
                 accept=".html,.htm"
                 onChange={handleFileImport}
+                disabled={isPending}
               />
               <p className="text-muted-foreground text-sm">
                 Choose a bookmark HTML file exported from Chrome, Edge, or other browsers

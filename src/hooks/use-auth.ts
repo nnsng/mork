@@ -1,46 +1,37 @@
-'use client';
-
-import type { User } from '@/types/user';
+import { QUERY_KEYS } from '@/constants/query-keys';
+import { createClient } from '@/utils/supabase/client';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(() => {
-    const user = localStorage.getItem('bookmarkUser');
-    if (!user) return null;
-    return JSON.parse(user);
-  });
+  const supabase = createClient();
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (!user) router.push('/signin');
-  }, [user, router]);
+  const queryClient = useQueryClient();
 
-  const onSignIn = (email: string) => {
-    const user = { name: email.split('@')[0], email };
-    setUser(user);
-    localStorage.setItem('bookmarkUser', JSON.stringify(user));
-    router.push('/');
-  };
+  const { data: user } = useQuery({
+    queryKey: [QUERY_KEYS.USER],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getUser();
+      return data.user;
+    },
+  });
 
-  const onSignUp = (user: User) => {
-    setUser(user);
-    localStorage.setItem('bookmarkUser', JSON.stringify(user));
-    router.push('/');
-  };
+  const { mutateAsync: onSignOut } = useMutation({
+    mutationFn: async () => {
+      await supabase.auth.signOut();
+    },
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
+      router.push('/sign-in');
+    },
+    onError: (error) => {
+      console.error('Failed to sign out:', error);
+      toast.error('Failed to sign out');
+    },
+  });
 
-  const onSignOut = () => {
-    setUser(null);
-    localStorage.removeItem('bookmarkUser');
-    localStorage.removeItem('bookmarks');
-    router.push('/signin');
-  };
-
-  const updateUser = (user: User) => {
-    setUser(user);
-    localStorage.setItem('bookmarkUser', JSON.stringify(user));
-  };
-
-  return { user, isAuthenticated: !!user, onSignIn, onSignUp, onSignOut, updateUser };
+  return { user, onSignOut };
 }

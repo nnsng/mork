@@ -1,26 +1,36 @@
-import type { Bookmark } from '@/types/bookmark';
+import type { Bookmark, BookmarkPayload } from '@/types/bookmark';
 
 export const generateBookmarksHTML = (bookmarks: Bookmark[]): string => {
   const bookmarkItems = bookmarks
     .map(
       (bookmark) =>
-        `<DT><A HREF="${bookmark.url}" ADD_DATE="${Math.floor(new Date(bookmark.createdAt).getTime() / 1000)}">${bookmark.title}</A>`,
+        `<DT>
+          <A
+            HREF="${bookmark.url}"
+            ADD_DATE="${Math.floor(new Date(bookmark.created_at).getTime() / 1000)}"
+            DATA-DESCRIPTION="${bookmark.description}"
+            DATA-FOLDER="${bookmark.folder}"
+          >
+            ${bookmark.title}
+          </A>`,
     )
     .join('\n        ');
 
-  return `<!DOCTYPE NETSCAPE-Bookmark-file-1>
-<!-- This is an automatically generated file.
-   It will be read and overwritten.
-   DO NOT EDIT! -->
-<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
-<TITLE>Mork</TITLE>
-<H1>Mork</H1>
-<DL><p>
-  <DT><H3 ADD_DATE="${Math.floor(Date.now() / 1000)}" LAST_MODIFIED="${Math.floor(Date.now() / 1000)}">Mork</H3>
-  <DL><p>
-      ${bookmarkItems}
-  </DL><p>
-</DL><p>`;
+  return `
+    <!DOCTYPE NETSCAPE-Bookmark-file-1>
+      <!-- This is an automatically generated file.
+        It will be read and overwritten.
+        DO NOT EDIT! -->
+      <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+      <TITLE>Mork</TITLE>
+      <H1>Mork</H1>
+      <DL><p>
+        <DT><H3 ADD_DATE="${Math.floor(Date.now() / 1000)}" LAST_MODIFIED="${Math.floor(Date.now() / 1000)}">Mork</H3>
+        <DL><p>
+          ${bookmarkItems}
+        </DL><p>
+      </DL><p>
+  `;
 };
 
 export const exportBookmarks = (bookmarks: Bookmark[]) => {
@@ -37,25 +47,25 @@ export const exportBookmarks = (bookmarks: Bookmark[]) => {
   URL.revokeObjectURL(url);
 };
 
-export const parseBookmarksHTML = (html: string): Bookmark[] => {
+export const parseBookmarksHTML = (html: string): BookmarkPayload[] => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
   const links = doc.querySelectorAll('a[href]');
 
-  const bookmarks: Bookmark[] = [];
+  const bookmarks: BookmarkPayload[] = [];
 
-  links.forEach((link, index) => {
+  links.forEach((link) => {
     const href = link.getAttribute('href');
     const title = link.textContent || '';
+    const description = link.getAttribute('data-description') || '';
+    const folder = link.getAttribute('data-folder') || '';
 
     if (href && href.startsWith('http')) {
       bookmarks.push({
-        id: `imported-${Date.now()}-${index}`,
         title,
         url: href,
-        description: '',
-        folder: '',
-        createdAt: new Date().toISOString(),
+        description,
+        folder,
       });
     }
   });
@@ -63,7 +73,7 @@ export const parseBookmarksHTML = (html: string): Bookmark[] => {
   return bookmarks;
 };
 
-export const importBookmarks = (file: File): Promise<Bookmark[]> => {
+export const importBookmarks = async (file: File): Promise<BookmarkPayload[]> => {
   if (!file) return Promise.resolve([]);
 
   return new Promise((resolve, reject) => {

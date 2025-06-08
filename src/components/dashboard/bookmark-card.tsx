@@ -1,5 +1,6 @@
 'use client';
 
+import { deleteBookmarkAction } from '@/app/(main)/(dashboard)/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {
@@ -9,17 +10,39 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { Bookmark } from '@/types/bookmark';
-import { ExternalLink, Globe, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { ExternalLink, Globe, MoreHorizontal, Trash2 } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { useServerAction } from 'zsa-react';
 
 type BookmarkCardProps = {
   bookmark: Bookmark;
-  onDelete: (id: string) => void;
-  onEdit: (bookmark: Bookmark) => void;
 };
 
-export function BookmarkCard({ bookmark, onDelete, onEdit }: BookmarkCardProps) {
+export function BookmarkCard({ bookmark }: BookmarkCardProps) {
   const [imageError, setImageError] = useState(false);
+
+  const toastLoadingId = useRef<string | number | undefined>(undefined);
+
+  const { execute: deleteBookmark } = useServerAction(deleteBookmarkAction, {
+    onStart: () => {
+      toastLoadingId.current = toast.loading('Deleting bookmark...');
+    },
+    onFinish: () => {
+      toast.dismiss(toastLoadingId.current);
+    },
+    onSuccess: () => {
+      toast.success('Bookmark deleted successfully');
+    },
+    onError: ({ err }) => {
+      toast.error(err.message);
+    },
+  });
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(bookmark.url);
+    toast.success('Link copied to clipboard');
+  };
 
   const getFaviconUrl = (url: string) => {
     try {
@@ -38,6 +61,7 @@ export function BookmarkCard({ bookmark, onDelete, onEdit }: BookmarkCardProps) 
         <div className="mb-4 flex items-start justify-between">
           <div className="flex min-w-0 flex-1 items-center space-x-3">
             {faviconUrl && !imageError ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={faviconUrl || '/placeholder.svg'}
                 alt=""
@@ -67,18 +91,13 @@ export function BookmarkCard({ bookmark, onDelete, onEdit }: BookmarkCardProps) 
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(bookmark.url)}>
+              <DropdownMenuItem onClick={handleCopyLink}>
                 <ExternalLink className="mr-2 size-4" />
                 Copy Link
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => onEdit(bookmark)}>
-                <Pencil className="mr-2 size-4" />
-                Edit
-              </DropdownMenuItem>
-
-              <DropdownMenuItem onClick={() => onDelete(bookmark.id)} className="text-destructive">
-                <Trash2 className="text-destructive mr-2 size-4" />
+              <DropdownMenuItem onClick={() => deleteBookmark(bookmark.id)}>
+                <Trash2 className="mr-2 size-4" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>

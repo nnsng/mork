@@ -1,8 +1,12 @@
 export type Bookmark = {
-  id: string;
+  id: number;
   title: string;
   url: string;
   description: string;
   folder: string;
-  createdAt: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
 };
+
+export type BookmarkPayload = Pick<Bookmark, 'title' | 'url' | 'description' | 'folder'>;

@@ -1,4 +1,10 @@
-import { SignupForm } from '@/components/auth/signup-form';
+import { SignupForm } from '@/app/(auth)/sign-up/sign-up-form';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Sign up | Mork',
+  description: 'Create an account to start managing your bookmarks',
+};
 
 export default function SignupPage() {
   return (

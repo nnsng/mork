@@ -3,11 +3,9 @@ import { BookmarkCard } from './bookmark-card';
 
 type BookmarkGridProps = {
   bookmarks: Bookmark[];
-  onDelete: (id: string) => void;
-  onEdit: (bookmark: Bookmark) => void;
 };
 
-export function BookmarkGrid({ bookmarks, onDelete, onEdit }: BookmarkGridProps) {
+export function BookmarkGrid({ bookmarks }: BookmarkGridProps) {
   if (bookmarks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -22,7 +20,7 @@ export function BookmarkGrid({ bookmarks, onDelete, onEdit }: BookmarkGridProps)
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {bookmarks.map((bookmark) => (
-        <BookmarkCard key={bookmark.id} bookmark={bookmark} onDelete={onDelete} onEdit={onEdit} />
+        <BookmarkCard key={bookmark.id} bookmark={bookmark} />
       ))}
     </div>
   );
