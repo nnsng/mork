@@ -15,6 +15,17 @@ export async function addBookmark(bookmark: BookmarkPayload) {
   return data as Bookmark[];
 }
 
+export async function updateBookmark(bookmark: Bookmark) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('bookmark')
+    .update(bookmark)
+    .eq('id', bookmark.id)
+    .select();
+  if (error) throw new Error(error.message);
+  return data as Bookmark[];
+}
+
 export async function deleteBookmark(id: Bookmark['id']) {
   const supabase = await createClient();
   const { data, error } = await supabase.from('bookmark').delete().eq('id', id).select();

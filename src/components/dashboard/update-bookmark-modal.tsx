@@ -1,6 +1,6 @@
 'use client';
 
-import { addBookmarkAction } from '@/app/(main)/(dashboard)/actions';
+import { updateBookmarkAction } from '@/app/(main)/(dashboard)/actions';
 import { FormInput } from '@/components/form-fields';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,78 +10,67 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import type { Bookmark } from '@/types/bookmark';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { useServerAction } from 'zsa-react';
 
 const formSchema = z.object({
+  id: z.number(),
   title: z.string().min(1),
   url: z.string().url(),
   description: z.string(),
   folder: z.string(),
+  user_id: z.string(),
+  created_at: z.string(),
 });
 
-export type BookmarkFormValues = z.infer<typeof formSchema>;
+type UpdateBookmarkModalProps = {
+  bookmark: Bookmark;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+};
 
-export function AddBookmarkButton() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const closeModal = () => {
-    setIsOpen(false);
-  };
-
-  const { execute, isPending } = useServerAction(addBookmarkAction, {
+export function UpdateBookmarkModal({ bookmark, isOpen, onOpenChange }: UpdateBookmarkModalProps) {
+  const { execute, isPending } = useServerAction(updateBookmarkAction, {
     onSuccess: () => {
-      toast.success('Bookmark added successfully');
-      closeModal();
+      toast.success('Bookmark updated successfully');
+      onOpenChange(false);
     },
     onError: ({ err }) => {
       toast.error(err.message);
     },
   });
 
-  const form = useForm<BookmarkFormValues>({
-    defaultValues: {
-      title: '',
-      url: '',
-      description: '',
-      folder: '',
-    },
+  const form = useForm<Bookmark>({
+    defaultValues: bookmark,
     resolver: zodResolver(formSchema),
   });
 
   useEffect(() => {
     if (isOpen) {
-      form.reset();
+      form.reset(bookmark);
       form.clearErrors();
     }
-  }, [isOpen, form]);
+  }, [isOpen, form, bookmark]);
 
-  const onSubmit = (data: BookmarkFormValues) => {
+  const onSubmit = (data: Bookmark) => {
     execute(data);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild onClick={() => setIsOpen(true)}>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Bookmark
-        </Button>
-      </DialogTrigger>
-
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Bookmark</DialogTitle>
+          <DialogTitle>Update Bookmark</DialogTitle>
           <DialogDescription>
-            Add a new bookmark to your collection. Fill in the details below.
+            Update the details of the bookmark. Fill in the details below.
           </DialogDescription>
         </DialogHeader>
 
@@ -116,12 +105,12 @@ export function AddBookmarkButton() {
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={closeModal}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Add
+                Update
               </Button>
             </DialogFooter>
           </form>
