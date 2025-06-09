@@ -1,5 +1,4 @@
 import type { Bookmark, BookmarkPayload } from '@/types/bookmark';
-import dayjs from 'dayjs';
 
 export const generateBookmarksHTML = (bookmarks: Bookmark[]): string => {
   const bookmarkItems = bookmarks
@@ -41,7 +40,7 @@ export const exportBookmarks = (bookmarks: Bookmark[]) => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `bookmarks-${dayjs().format('YYYYMMDD-HHmmss')}.html`;
+  a.download = `bookmarks-${new Date().toISOString().split('T')[0]}.html`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
