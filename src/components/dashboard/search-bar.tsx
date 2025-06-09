@@ -14,7 +14,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
       <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
       <Input
         type="text"
-        placeholder="Search bookmarks by title, URL, description, or folder..."
+        placeholder="Search bookmarks"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="pl-10"

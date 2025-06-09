@@ -1,5 +1,6 @@
 'use client';
 
+import { importBookmarksAction } from '@/app/(main)/(dashboard)/actions';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -7,31 +8,36 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Bookmark } from '@/types/bookmark';
 import { exportBookmarks, importBookmarks } from '@/utils/bookmark';
-import { Download } from 'lucide-react';
+import { Download, Upload } from 'lucide-react';
 import type React from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { useServerAction } from 'zsa-react';
-import { importBookmarksAction } from '../../app/(main)/(dashboard)/actions';
 
-type ImportExportModalProps = {
+type ImportExportButtonProps = {
   bookmarks: Bookmark[];
-  isOpen: boolean;
-  onClose: () => void;
 };
 
-export function ImportExportModal({ bookmarks, isOpen, onClose }: ImportExportModalProps) {
+export function ImportExportButton({ bookmarks }: ImportExportButtonProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const closeModal = () => {
+    setIsOpen(false);
+  };
+
   const { execute, isPending } = useServerAction(importBookmarksAction, {
     onSuccess: ({ data }) => {
       toast.success(
         `Successfully imported ${data.length} ${data.length === 1 ? 'bookmark' : 'bookmarks'}`,
       );
-      onClose();
+      closeModal();
     },
     onError: ({ err }) => {
       toast.error(err.message);
@@ -52,11 +58,18 @@ export function ImportExportModal({ bookmarks, isOpen, onClose }: ImportExportMo
 
   const handleExport = () => {
     exportBookmarks(bookmarks);
-    onClose();
+    closeModal();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild onClick={() => setIsOpen(true)}>
+        <Button variant="outline">
+          <Upload className="mr-2 h-4 w-4" />
+          Import/Export
+        </Button>
+      </DialogTrigger>
+
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Import/Export Bookmarks</DialogTitle>
@@ -67,8 +80,12 @@ export function ImportExportModal({ bookmarks, isOpen, onClose }: ImportExportMo
 
         <Tabs defaultValue="import" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="import">Import</TabsTrigger>
-            <TabsTrigger value="export">Export</TabsTrigger>
+            <TabsTrigger value="import" className="cursor-pointer">
+              Import
+            </TabsTrigger>
+            <TabsTrigger value="export" className="cursor-pointer">
+              Export
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="import" className="space-y-4 pt-2">
@@ -80,6 +97,7 @@ export function ImportExportModal({ bookmarks, isOpen, onClose }: ImportExportMo
                 accept=".html,.htm"
                 onChange={handleFileImport}
                 disabled={isPending}
+                className="cursor-pointer"
               />
               <p className="text-muted-foreground text-sm">
                 Choose a bookmark HTML file exported from Chrome, Edge, or other browsers

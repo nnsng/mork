@@ -1,5 +1,7 @@
 'use client';
 
+import { addBookmarkAction } from '@/app/(main)/(dashboard)/actions';
+import { FormInput } from '@/components/form-fields';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -8,16 +10,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { useServerAction } from 'zsa-react';
-import { addBookmarkAction } from '../../app/(main)/(dashboard)/actions';
-import { FormInput } from '../form-fields';
 
 const formSchema = z.object({
   title: z.string().min(1),
@@ -28,18 +30,17 @@ const formSchema = z.object({
 
 export type BookmarkFormValues = z.infer<typeof formSchema>;
 
-type AddBookmarkModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-};
+export function AddBookmarkButton() {
+  const [isOpen, setIsOpen] = useState(false);
 
-export function AddBookmarkModal(props: AddBookmarkModalProps) {
-  const { isOpen, onClose } = props;
+  const closeModal = () => {
+    setIsOpen(false);
+  };
 
   const { execute, isPending } = useServerAction(addBookmarkAction, {
     onSuccess: () => {
       toast.success('Bookmark added successfully');
-      onClose();
+      closeModal();
     },
     onError: ({ err }) => {
       toast.error(err.message);
@@ -56,18 +57,26 @@ export function AddBookmarkModal(props: AddBookmarkModalProps) {
     resolver: zodResolver(formSchema),
   });
 
-  const handleClose = () => {
-    form.reset();
-    form.clearErrors();
-    onClose();
-  };
+  useEffect(() => {
+    if (isOpen) {
+      form.reset();
+      form.clearErrors();
+    }
+  }, [isOpen, form]);
 
   const onSubmit = (data: BookmarkFormValues) => {
     execute(data);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild onClick={() => setIsOpen(true)}>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Bookmark
+        </Button>
+      </DialogTrigger>
+
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add New Bookmark</DialogTitle>
@@ -107,7 +116,7 @@ export function AddBookmarkModal(props: AddBookmarkModalProps) {
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={closeModal}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>

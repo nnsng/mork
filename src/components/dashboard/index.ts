@@ -1,5 +1,5 @@
-export * from './add-bookmark-modal';
+export * from './add-bookmark-button';
 export * from './bookmark-card';
 export * from './bookmark-grid';
-export * from './import-export-modal';
+export * from './import-export-button';
 export * from './search-bar';
