@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { BookmarkDashboard } from './bookmark-dashboard';
 
 export const metadata: Metadata = {
-  title: 'All Bookmarks | Mork',
+  title: 'All Bookmarks',
   description: 'View all your bookmarks in one place',
 };
 

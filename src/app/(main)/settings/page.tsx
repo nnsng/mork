@@ -2,7 +2,7 @@ import { SettingsForm } from '@/app/(main)/settings/setting-form';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Settings | Mork',
+  title: 'Settings',
   description: 'Manage your account settings and preferences',
 };
 

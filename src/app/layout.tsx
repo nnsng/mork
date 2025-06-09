@@ -9,7 +9,10 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Mork | Bookmark Manager',
+  title: {
+    template: '%s | Mork',
+    default: 'Mork',
+  },
   description: 'Organize and manage your bookmarks efficiently',
 };
 

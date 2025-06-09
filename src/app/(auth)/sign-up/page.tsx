@@ -2,7 +2,7 @@ import { SignupForm } from '@/app/(auth)/sign-up/sign-up-form';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Sign up | Mork',
+  title: 'Sign up',
   description: 'Create an account to start managing your bookmarks',
 };
 
