@@ -4,11 +4,10 @@ import { FormInput } from '@/components/form-fields';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { QUERY_KEYS } from '@/constants/query-keys';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/providers/auth-provider';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -21,14 +20,12 @@ const schema = z.object({
 });
 
 export function ProfileForm() {
-  const { user } = useAuth();
-
-  const queryClient = useQueryClient();
+  const { user, onUpdateUser } = useAuth();
 
   const { execute, isPending } = useServerAction(updateUserAction, {
-    onSuccess: () => {
+    onSuccess: ({ data }) => {
       toast.success('Settings updated successfully');
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+      onUpdateUser(data.user);
     },
     onError: ({ err }) => {
       toast.error(err.message);
@@ -42,6 +39,13 @@ export function ProfileForm() {
     },
     resolver: zodResolver(schema),
   });
+
+  useEffect(() => {
+    form.reset({
+      name: user?.user_metadata.display_name || '',
+      email: user?.email || '',
+    });
+  }, [user, form]);
 
   const handleSubmit = async (data: z.infer<typeof schema>) => {
     execute({ name: data.name });
