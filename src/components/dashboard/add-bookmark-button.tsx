@@ -91,28 +91,28 @@ export function AddBookmarkButton() {
               control={form.control}
               name="title"
               label="Title *"
-              placeholder="Enter bookmark title"
+              placeholder="Name your bookmark"
             />
 
             <FormInput
               control={form.control}
               name="url"
               label="URL *"
-              placeholder="https://example.com"
+              placeholder="Enter the website URL"
             />
 
             <FormInput
               control={form.control}
               name="description"
               label="Description"
-              placeholder="Optional description"
+              placeholder="Describe your bookmark"
             />
 
             <FormInput
               control={form.control}
               name="folder"
               label="Folder"
-              placeholder="Optional folder name"
+              placeholder="Choose a folder name"
             />
 
             <DialogFooter>
@@ -121,7 +121,7 @@ export function AddBookmarkButton() {
               </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Add
+                Add Bookmark
               </Button>
             </DialogFooter>
           </form>

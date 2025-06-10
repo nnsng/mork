@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { Bookmark } from '@/types/bookmark';
+import { cn } from '@/utils/tw';
 import { ExternalLink, Globe, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -26,7 +27,7 @@ export function BookmarkCard({ bookmark }: BookmarkCardProps) {
 
   const toastLoadingId = useRef<string | number | undefined>(undefined);
 
-  const { execute: deleteBookmark } = useServerAction(deleteBookmarkAction, {
+  const { execute: deleteBookmark, isPending: isDeleting } = useServerAction(deleteBookmarkAction, {
     onStart: () => {
       toastLoadingId.current = toast.loading('Deleting bookmark...');
     },
@@ -87,7 +88,9 @@ export function BookmarkCard({ bookmark }: BookmarkCardProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+                  className={cn('h-8 w-8 p-0 opacity-0 transition-opacity', {
+                    'group-hover:opacity-100': !isDeleting,
+                  })}
                 >
                   <MoreHorizontal className="size-4" />
                 </Button>
