@@ -3,7 +3,7 @@
 import { createClient } from '@/utils/supabase/client';
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
-import { createContext, use, useEffect, useState } from 'react';
+import { createContext, use, useEffect, useState, type PropsWithChildren } from 'react';
 import { toast } from 'sonner';
 
 type AuthContextType = {
@@ -14,7 +14,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const supabase = createClient();

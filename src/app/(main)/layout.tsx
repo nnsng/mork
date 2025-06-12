@@ -1,10 +1,4 @@
-import {
-  AppSidebarContent,
-  AppSidebarFooter,
-  AppSidebarHeader,
-  AppSidebarInset,
-} from '@/components/sidebar';
-import { Sidebar, SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/app/(main)/_sidebar/sidebar';
 import { getUser } from '@/data-access/auth';
 import { redirect } from 'next/navigation';
 import { type PropsWithChildren } from 'react';
@@ -18,14 +12,5 @@ export default async function MainLayout({ children }: MainLayoutProps) {
     return redirect('/sign-in');
   }
 
-  return (
-    <SidebarProvider>
-      <Sidebar collapsible="icon">
-        <AppSidebarHeader />
-        <AppSidebarContent />
-        <AppSidebarFooter />
-      </Sidebar>
-      <AppSidebarInset>{children}</AppSidebarInset>
-    </SidebarProvider>
-  );
+  return <AppSidebar>{children}</AppSidebar>;
 }
