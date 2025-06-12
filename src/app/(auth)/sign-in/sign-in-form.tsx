@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { useAuth } from '@/providers/auth-provider';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -29,8 +30,11 @@ const schema = z.object({
 export function SignInForm() {
   const router = useRouter();
 
+  const { onUpdateUser } = useAuth();
+
   const { execute, isPending } = useServerAction(signInAction, {
-    onSuccess: () => {
+    onSuccess: ({ data }) => {
+      onUpdateUser(data.user);
       toast.success('Signed in successfully');
       router.push('/');
     },
