@@ -20,12 +20,7 @@ import { toast } from 'sonner';
 import z from 'zod';
 import { useServerAction } from 'zsa-react';
 import { signUpAction } from './actions';
-
-const schema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(6),
-});
+import { schema } from './validation';
 
 export function SignupForm() {
   const router = useRouter();

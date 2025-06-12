@@ -13,11 +13,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { useServerAction } from 'zsa-react';
 import { updateUserAction } from './actions';
-
-const schema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-});
+import { profileSchema } from './validation';
 
 export function ProfileForm() {
   const { user, onUpdateUser } = useAuth();
@@ -35,20 +31,18 @@ export function ProfileForm() {
   const form = useForm({
     defaultValues: {
       name: user?.user_metadata.display_name || '',
-      email: user?.email || '',
     },
-    resolver: zodResolver(schema),
+    resolver: zodResolver(profileSchema),
   });
 
   useEffect(() => {
     form.reset({
       name: user?.user_metadata.display_name || '',
-      email: user?.email || '',
     });
   }, [user, form]);
 
-  const handleSubmit = async (data: z.infer<typeof schema>) => {
-    execute({ name: data.name });
+  const handleSubmit = async (data: z.infer<typeof profileSchema>) => {
+    execute(data);
   };
 
   return (

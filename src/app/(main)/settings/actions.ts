@@ -1,15 +1,11 @@
 'use server';
 
 import { updateUser } from '@/data-access/auth';
-import { z } from 'zod';
 import { createServerAction } from 'zsa';
+import { profileSchema } from './validation';
 
 export const updateUserAction = createServerAction()
-  .input(
-    z.object({
-      name: z.string().min(1),
-    }),
-  )
+  .input(profileSchema)
   .handler(async ({ input }) => {
     const data = await updateUser(input);
     return data;
