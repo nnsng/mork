@@ -10,7 +10,11 @@ export async function fetchBookmark() {
 
 export async function addBookmark(bookmark: BookmarkPayload) {
   const supabase = await createClient();
-  const { data, error } = await supabase.from('bookmark').insert(bookmark).select();
+  const { data, error } = await supabase
+    .from('bookmark')
+    .insert(bookmark)
+    .select()
+    .order('created_at', { ascending: false });
   if (error) throw new Error(error.message);
   return data as Bookmark[];
 }

@@ -1,25 +1,23 @@
 'use client';
 
 import { addBookmarkAction } from '@/app/(main)/(dashboard)/actions';
-import { FormInput } from '@/components/form-fields';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { useServerAction } from 'zsa-react';
+import { BookmarkForm } from './bookmark-form';
 
 const formSchema = z.object({
   title: z.string().min(1),
@@ -30,7 +28,7 @@ const formSchema = z.object({
 
 export type BookmarkFormValues = z.infer<typeof formSchema>;
 
-export function AddBookmarkButton() {
+export function AddBookmarkModal() {
   const [isOpen, setIsOpen] = useState(false);
 
   const closeModal = () => {
@@ -85,47 +83,13 @@ export function AddBookmarkButton() {
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormInput
-              control={form.control}
-              name="title"
-              label="Title *"
-              placeholder="Name your bookmark"
-            />
-
-            <FormInput
-              control={form.control}
-              name="url"
-              label="URL *"
-              placeholder="Enter the website URL"
-            />
-
-            <FormInput
-              control={form.control}
-              name="description"
-              label="Description"
-              placeholder="Describe your bookmark"
-            />
-
-            <FormInput
-              control={form.control}
-              name="folder"
-              label="Folder"
-              placeholder="Choose a folder name"
-            />
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={closeModal}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Add Bookmark
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <BookmarkForm
+          form={form}
+          isPending={isPending}
+          submitButtonText="Add Bookmark"
+          onSubmit={onSubmit}
+          onCancel={closeModal}
+        />
       </DialogContent>
     </Dialog>
   );

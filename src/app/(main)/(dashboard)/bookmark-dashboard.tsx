@@ -1,14 +1,13 @@
 'use client';
 
 import { BookmarkGrid, SearchBar } from '@/components/dashboard';
+import { useBookmarks } from '@/providers/bookmark-provider';
 import type { Bookmark } from '@/types/bookmark';
 import { useEffect, useState } from 'react';
 
-type BookmarkDashboardProps = {
-  bookmarks: Bookmark[];
-};
+export function BookmarkDashboard() {
+  const { bookmarks } = useBookmarks();
 
-export function BookmarkDashboard({ bookmarks }: BookmarkDashboardProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredBookmarks, setFilteredBookmarks] = useState(bookmarks);
 

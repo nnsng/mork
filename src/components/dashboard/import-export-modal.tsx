@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { Bookmark } from '@/types/bookmark';
+import { useBookmarks } from '@/providers/bookmark-provider';
 import { exportBookmarks, importBookmarks } from '@/utils/bookmark';
 import { Download, Upload } from 'lucide-react';
 import type React from 'react';
@@ -21,11 +21,9 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { useServerAction } from 'zsa-react';
 
-type ImportExportButtonProps = {
-  bookmarks: Bookmark[];
-};
+export function ImportExportModal() {
+  const { bookmarks } = useBookmarks();
 
-export function ImportExportButton({ bookmarks }: ImportExportButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const closeModal = () => {
