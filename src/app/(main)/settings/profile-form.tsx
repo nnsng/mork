@@ -63,6 +63,7 @@ export function ProfileForm() {
               label="Email"
               placeholder="Your email"
               disabled
+              value={user?.email || ''}
             />
 
             <Button type="submit" disabled={isPending}>
